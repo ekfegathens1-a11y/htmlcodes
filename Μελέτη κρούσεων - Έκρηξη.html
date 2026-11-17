@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ΕΚΦΕ Αγ.Αναργύρων - Χρήστος Γεωργόπουλος | Προσομοίωση Κρούσεων &amp; Εκρήξεων</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    colors: {
+                        bodyA: '#ef4444', // Red-500
+                        bodyB: '#3b82f6', // Blue-500
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for canvas and range inputs */
+        canvas {
+            background: linear-gradient(to bottom, #0f172a, #1e293b);
+        }
+        input[type=range] {
+            accent-color: #0284c7;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+    <!-- Header Section -->
+    <header class="bg-slate-950/90 border-b border-slate-800 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-gradient-to-tr from-sky-600 via-indigo-600 to-rose-600 rounded-xl shadow-lg shadow-sky-500/20 text-white">
+                    <i class="fa-solid fa-burst text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-blue-200 to-rose-400">
+                        ΕΚΦΕ Αγ.Αναργύρων - Χρήστος Γεωργόπουλος
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-400 font-medium">
+                        Προσομοίωση &amp; Μελέτη Φαινομένων <span class="text-sky-400 font-semibold">(Κρούσεις &amp; Έκρηξη Σώματος)</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Quick Badges -->
+            <div class="flex items-center space-x-2 text-xs">
+                <span class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-full border border-slate-700 font-mono">
+                    <i class="fa-solid fa-shield-halved text-emerald-400 mr-1"></i> Δ.Ο: Σp = σταθ.
+                </span>
+                <span class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-atom text-sky-400 mr-1"></i> Physics Lab 2D
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full space-y-6">
+        
+        <!-- Controls & Canvas Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Left Controls Sidebar (4 cols) -->
+            <div class="lg:col-span-4 space-y-5">
+                
+                <!-- 1. Collision / Explosion Type Selection Card -->
+                <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/60 shadow-xl backdrop-blur-sm space-y-3">
+                    <h2 class="text-sm font-bold text-sky-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-gear"></i> Φαινόμενο &amp; Παράμετροι
+                    </h2>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Τύπος Φαινομένου</label>
+                        <select id="collision_type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm font-semibold text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <option value="elastic">Ελαστική Κρούση (e = 1.00)</option>
+                            <option value="inelastic">Ανελαστική Κρούση (0 < e < 1)</option>
+                            <option value="plastic">Πλαστική Κρούση (e = 0.00)</option>
+                            <option value="explosion">💥 Έκρηξη / Διάσπαση Σώματος</option>
+                        </select>
+                    </div>
+
+                    <!-- Coefficient of Restitution Slider (Visible for Inelastic) -->
+                    <div id="e_slider_container" class="space-y-1 bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">Συντελεστής Αποκατάστασης (e):</span>
+                            <span id="e_val_disp" class="font-mono text-sky-400 font-bold">0.60</span>
+                        </div>
+                        <input type="range" id="restitution_e" min="0" max="1" step="0.05" value="0.60" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Explosion Energy Input (Visible for Explosion) -->
+                    <div id="explosion_container" class="hidden space-y-2 bg-slate-900/80 p-3 rounded-xl border border-amber-500/40">
+                        <label class="block text-xs font-bold text-amber-400 flex items-center gap-1">
+                            <i class="fa-solid fa-bolt"></i> Ελευθερούμενη Ενέργεια Έκρηξης E<sub>exp</sub> (J)
+                        </label>
+                        <input type="number" id="e_exp_input" min="0" max="1000" step="10" value="150" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm font-mono font-bold text-amber-300 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <p class="text-[11px] text-slate-400">Η ενέργεια αυτή μετατρέπεται σε επιπλέον Κινητική Ενέργεια των 2 τμημάτων.</p>
+                    </div>
+
+                    <!-- Object Type Visual Selection -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Οπτική Αναπαράσταση</label>
+                        <div class="grid grid-cols-4 gap-1.5">
+                            <button type="button" onclick="setVisualType('balls')" id="btn_vis_balls" class="vis-btn active p-2 text-[11px] font-semibold rounded-lg bg-sky-600 text-white border border-sky-400 flex flex-col items-center gap-1 transition">
+                                <i class="fa-solid fa-circle text-base"></i> Μπάλες
+                            </button>
+                            <button type="button" onclick="setVisualType('cars')" id="btn_vis_cars" class="vis-btn p-2 text-[11px] font-semibold rounded-lg bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-700 flex flex-col items-center gap-1 transition">
+                                <i class="fa-solid fa-car-side text-base"></i> Ι.Χ.
+                            </button>
+                            <button type="button" onclick="setVisualType('trucks')" id="btn_vis_trucks" class="vis-btn p-2 text-[11px] font-semibold rounded-lg bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-700 flex flex-col items-center gap-1 transition">
+                                <i class="fa-solid fa-truck-front text-base"></i> Φορτηγά
+                            </button>
+                            <button type="button" onclick="setVisualType('bomb')" id="btn_vis_bomb" class="vis-btn p-2 text-[11px] font-semibold rounded-lg bg-slate-900 text-slate-300 border border-slate-700 hover:bg-slate-700 flex flex-col items-center gap-1 transition">
+                                <i class="fa-solid fa-bomb text-base text-amber-400"></i> Βόμβα
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Body A / Fragment 1 Parameters Card -->
+                <div class="bg-slate-800/80 rounded-2xl p-4 border border-rose-500/30 shadow-xl backdrop-blur-sm space-y-3 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-rose-500"></div>
+                    <h3 class="text-sm font-bold text-rose-400 uppercase tracking-wider flex items-center justify-between">
+                        <span id="title_bodyA"><i class="fa-solid fa-square-full text-rose-500 text-xs mr-1"></i> Σώμα A (Κόκκινο)</span>
+                        <span class="text-xs font-mono bg-rose-950/80 text-rose-300 px-2 py-0.5 rounded border border-rose-800/50" id="badge_bodyA">m₁ , v₁</span>
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1" id="lbl_m1">Μάζα m₁ (kg)</label>
+                            <input type="number" id="m1_input" min="0.5" max="50" step="0.5" value="2.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm font-mono font-semibold text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1" id="lbl_v1">Αρχ. Ταχύτητα v₁ (m/s)</label>
+                            <input type="number" id="v1_input" min="-20" max="20" step="0.5" value="5.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm font-mono font-semibold text-white focus:ring-2 focus:ring-rose-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Body B / Fragment 2 Parameters Card -->
+                <div class="bg-slate-800/80 rounded-2xl p-4 border border-blue-500/30 shadow-xl backdrop-blur-sm space-y-3 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center justify-between">
+                        <span id="title_bodyB"><i class="fa-solid fa-square-full text-blue-500 text-xs mr-1"></i> Σώμα B (Μπλε)</span>
+                        <span class="text-xs font-mono bg-blue-950/80 text-blue-300 px-2 py-0.5 rounded border border-blue-800/50" id="badge_bodyB">m₂ , v₂</span>
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1" id="lbl_m2">Μάζα m₂ (kg)</label>
+                            <input type="number" id="m2_input" min="0.5" max="50" step="0.5" value="3.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm font-mono font-semibold text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                        <div id="v2_input_container">
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Αρχ. Ταχύτητα v₂ (m/s)</label>
+                            <input type="number" id="v2_input" min="-20" max="20" step="0.5" value="-2.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-sm font-mono font-semibold text-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Simulation Canvas & Outputs (8 cols) -->
+            <div class="lg:col-span-8 space-y-5">
+                
+                <!-- Canvas Card -->
+                <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700/80 shadow-2xl space-y-4">
+                    
+                    <!-- Top Action Bar -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/50">
+                        <div class="flex items-center space-x-2">
+                            <button id="btn_start" onclick="togglePlay()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 rounded-lg shadow-md transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-play"></i> <span id="start_btn_text">Εκκίνηση</span>
+                            </button>
+                            <button id="btn_step" onclick="stepSim()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-forward-step"></i> Βήμα
+                            </button>
+                            <button onclick="resetSim()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> Επαναφορά
+                            </button>
+                        </div>
+
+                        <!-- Speed Controls -->
+                        <div class="flex items-center space-x-2 text-xs">
+                            <span class="text-slate-400 font-medium hidden sm:inline">Ταχύτητα:</span>
+                            <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 flex space-x-1">
+                                <button onclick="setSpeed(0.25)" id="speed_025" class="px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 hover:text-white">0.25x</button>
+                                <button onclick="setSpeed(0.5)" id="speed_05" class="px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 hover:text-white">0.5x</button>
+                                <button onclick="setSpeed(1.0)" id="speed_1" class="px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 hover:text-white bg-sky-600 text-white">1.0x</button>
+                                <button onclick="setSpeed(2.0)" id="speed_2" class="px-2 py-0.5 rounded text-[11px] font-mono text-slate-400 hover:text-white">2.0x</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- The Physics Canvas -->
+                    <div class="relative w-full aspect-[2/1] rounded-xl overflow-hidden border border-slate-700 shadow-inner">
+                        <canvas id="simCanvas" class="w-full h-full block"></canvas>
+                        
+                        <!-- Overlay Status Badge -->
+                        <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-sm border border-slate-700 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2">
+                            <span id="sim_status_dot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                            <span id="sim_status_text" class="font-medium text-slate-300">Έτοιμο προς εκκίνηση</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Velocity Indicators below canvas -->
+                    <div class="grid grid-cols-2 gap-4 text-xs font-mono">
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-rose-500/40 flex justify-between items-center">
+                            <span class="text-rose-400 font-bold" id="live_v1_lbl"><i class="fa-solid fa-gauge-high mr-1"></i> Σώμα A (v₁):</span>
+                            <span id="live_v1" class="text-white font-bold text-sm">0.00 m/s</span>
+                        </div>
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-blue-500/40 flex justify-between items-center">
+                            <span class="text-blue-400 font-bold" id="live_v2_lbl"><i class="fa-solid fa-gauge-high mr-1"></i> Σώμα B (v₂):</span>
+                            <span id="live_v2" class="text-white font-bold text-sm">0.00 m/s</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 4. Analytical Physics Calculations & Outputs Card -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700/60 shadow-xl space-y-4">
+                    <h3 class="text-sm font-bold text-sky-400 uppercase tracking-wider flex items-center justify-between border-b border-slate-700 pb-2">
+                        <span><i class="fa-solid fa-calculator text-sky-400 mr-2"></i> Θεωρητικοί Υπολογισμοί &amp; Μεγέθη</span>
+                        <span class="text-xs text-slate-400 font-normal">Μονάδες SI (kg, m/s, J)</span>
+                    </h3>
+
+                    <!-- Velocities & Momentum Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[11px] text-slate-400 font-medium block" id="lbl_res_v1">Τελική Ταχύτητα v₁'</span>
+                            <span id="res_v1_prime" class="text-lg font-bold font-mono text-rose-400">0.00 m/s</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[11px] text-slate-400 font-medium block" id="lbl_res_v2">Τελική Ταχύτητα v₂'</span>
+                            <span id="res_v2_prime" class="text-lg font-bold font-mono text-blue-400">0.00 m/s</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[11px] text-slate-400 font-medium block">Αρχική Ορμή (p<sub>αρχ</sub>)</span>
+                            <span id="res_p_init" class="text-lg font-bold font-mono text-emerald-400">0.00 kg·m/s</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[11px] text-slate-400 font-medium block">Τελική Ορμή (p<sub>τελ</sub>)</span>
+                            <span id="res_p_final" class="text-lg font-bold font-mono text-emerald-400">0.00 kg·m/s</span>
+                        </div>
+                    </div>
+
+                    <!-- Energy Balance & Loss / Gain -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[11px] text-slate-400 font-medium block">Αρχική Κιν. Ενέργεια (K<sub>αρχ</sub>)</span>
+                            <span id="res_k_init" class="text-lg font-bold font-mono text-amber-400">0.00 J</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[11px] text-slate-400 font-medium block">Τελική Κιν. Ενέργεια (K<sub>τελ</sub>)</span>
+                            <span id="res_k_final" class="text-lg font-bold font-mono text-amber-400">0.00 J</span>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <span class="text-[11px] text-slate-400 font-medium block" id="lbl_k_diff">Μεταβολή Ενέργειας (ΔK)</span>
+                            <span id="res_k_loss" class="text-lg font-bold font-mono text-rose-400">0.00 J</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Energy Comparison Bars -->
+                    <div class="space-y-2 pt-2 border-t border-slate-700/60">
+                        <span class="text-xs font-semibold text-slate-300 block">Σύγκριση Κινητικής Ενέργειας (K)</span>
+                        <div class="space-y-1 text-[11px] font-mono">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-16 text-slate-400">K_αρχ:</span>
+                                <div class="flex-grow bg-slate-900 rounded-full h-3 overflow-hidden border border-slate-700">
+                                    <div id="bar_k_init" class="bg-amber-500 h-full transition-all duration-300" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="w-16 text-slate-400">K_τελ:</span>
+                                <div class="flex-grow bg-slate-900 rounded-full h-3 overflow-hidden border border-slate-700">
+                                    <div id="bar_k_final" class="bg-sky-500 h-full transition-all duration-300" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 5. Educational Theory & Mathematical Formulas Section -->
+        <section class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700/60 shadow-xl space-y-4">
+            <h3 class="text-base font-bold text-sky-400 flex items-center gap-2 border-b border-slate-700 pb-3">
+                <i class="fa-solid fa-graduation-cap"></i> Φυσική Θεωρία &amp; Τύποι Υπολογισμού
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs text-slate-300">
+                <!-- Elastic Theory -->
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 space-y-2">
+                    <h4 class="font-bold text-emerald-400 text-sm">1. Ελαστική Κρούση (e = 1)</h4>
+                    <p class="text-slate-400">Διατηρείται η συνολική Ορμή και η Κινητική Ενέργεια ($\Delta K = 0$).</p>
+                    <div class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-emerald-300 space-y-1">
+                        <p>v₁' = [(m₁-m₂)v₁ + 2m₂v₂]/(m₁+m₂)</p>
+                        <p>v₂' = [(m₂-m₁)v₂ + 2m₁v₁]/(m₁+m₂)</p>
+                    </div>
+                </div>
+
+                <!-- Inelastic Theory -->
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 space-y-2">
+                    <h4 class="font-bold text-amber-400 text-sm">2. Ανελαστική (0 &lt; e &lt; 1)</h4>
+                    <p class="text-slate-400">Διατηρείται η Ορμή. Μέρος της Κινητικής Ενέργειας χάνεται σε θερμότητα.</p>
+                    <div class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-amber-300 space-y-1">
+                        <p>v₁' = [m₁v₁+m₂v₂ + m₂e(v₂-v₁)]/(m₁+m₂)</p>
+                        <p>v₂' = [m₁v₁+m₂v₂ + m₁e(v₁-v₂)]/(m₁+m₂)</p>
+                    </div>
+                </div>
+
+                <!-- Plastic Theory -->
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 space-y-2">
+                    <h4 class="font-bold text-rose-400 text-sm">3. Πλαστική Κρούση (e = 0)</h4>
+                    <p class="text-slate-400">Τα σώματα συσσωματώνονται. Μέγιστη απώλεια Κινητικής Ενέργειας.</p>
+                    <div class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-rose-300 space-y-1">
+                        <p>V_κοιν = (m₁v₁ + m₂v₂) / (m₁ + m₂)</p>
+                        <p>ΔK = K_τελ - K_αρχ &lt; 0</p>
+                    </div>
+                </div>
+
+                <!-- Explosion Theory -->
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-amber-500/40 space-y-2">
+                    <h4 class="font-bold text-amber-400 text-sm">4. 💥 Έκρηξη Σώματος</h4>
+                    <p class="text-slate-400">Η αρχική μάζα $M=m_1+m_2$ διασπάται. Η Κινητική Ενέργεια αυξάνεται λόγω της $E_{exp}$.</p>
+                    <div class="bg-slate-950 p-2.5 rounded font-mono text-[11px] text-amber-300 space-y-1">
+                        <p>P_αρχ = M·V₀ = m₁v₁' + m₂v₂'</p>
+                        <p>K_τελ = K_αρχ + E_exp</p>
+                        <p>v_rel = √(2·E_exp·M / (m₁·m₂))</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-slate-950 text-slate-400 border-t border-slate-800 py-5 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 space-y-1.5">
+            <p class="font-semibold text-slate-300">Εργαστηριακό Κέντρο Φυσικών Επιστημών (ΕΚΦΕ) Αγίων Αναργύρων</p>
+            <p>Υπεύθυνος Σχεδιασμού &amp; Ανάπτυξης: <span class="text-sky-400 font-semibold">Χρήστος Γεωργόπουλος</span></p>
+            <p class="text-[10px] text-slate-500">© 2026 — Διαδραστικό Εκπαιδευτικό Λογισμικό Φυσικής</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Simulation Script -->
+    <script>
+        // --- Canvas Setup ---
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // --- Physics & Simulation State Variables ---
+        let visualType = 'balls'; // 'balls' | 'cars' | 'trucks' | 'bomb'
+        let simRunning = false;
+        let isCollided = false; // or exploded
+        let simSpeed = 1.0;
+        let animationId = null;
+
+        // Physical Properties
+        let m1 = 2.0, m2 = 3.0;
+        let v1_init = 5.0, v2_init = -2.0;
+        let v1_current = 5.0, v2_current = -2.0;
+        let v1_final = 0, v2_final = 0;
+        let e_coeff = 1.0;
+        let e_exp = 150; // Joules for explosion
+        let collisionType = 'elastic';
+
+        // Particle Effects for Explosion
+        let particles = [];
+
+        // Positions on 1D Track (Canvas X coordinates)
+        let x1 = 0, x2 = 0;
+        let r1 = 30, r2 = 35;
+        let groundY = 0;
+
+        // DOM Elements
+        const collisionTypeSelect = document.getElementById('collision_type');
+        const eSliderContainer = document.getElementById('e_slider_container');
+        const explosionContainer = document.getElementById('explosion_container');
+        const eSlider = document.getElementById('restitution_e');
+        const eValDisp = document.getElementById('e_val_disp');
+        const eExpInput = document.getElementById('e_exp_input');
+
+        const m1Input = document.getElementById('m1_input');
+        const v1Input = document.getElementById('v1_input');
+        const m2Input = document.getElementById('m2_input');
+        const v2Input = document.getElementById('v2_input');
+        const v2InputContainer = document.getElementById('v2_input_container');
+
+        // Titles / Labels
+        const titleBodyA = document.getElementById('title_bodyA');
+        const titleBodyB = document.getElementById('title_bodyB');
+        const badgeBodyA = document.getElementById('badge_bodyA');
+        const badgeBodyB = document.getElementById('badge_bodyB');
+        const lblM1 = document.getElementById('lbl_m1');
+        const lblM2 = document.getElementById('lbl_m2');
+        const lblV1 = document.getElementById('lbl_v1');
+        const liveV1Lbl = document.getElementById('live_v1_lbl');
+        const liveV2Lbl = document.getElementById('live_v2_lbl');
+
+        // Output DOMs
+        const resV1Prime = document.getElementById('res_v1_prime');
+        const resV2Prime = document.getElementById('res_v2_prime');
+        const resPInit = document.getElementById('res_p_init');
+        const resPFinal = document.getElementById('res_p_final');
+        const resKInit = document.getElementById('res_k_init');
+        const resKFinal = document.getElementById('res_k_final');
+        const resKLoss = document.getElementById('res_k_loss');
+        const lblKDiff = document.getElementById('lbl_k_diff');
+
+        const barKInit = document.getElementById('bar_k_init');
+        const barKFinal = document.getElementById('bar_k_final');
+
+        const liveV1 = document.getElementById('live_v1');
+        const liveV2 = document.getElementById('live_v2');
+
+        const simStatusText = document.getElementById('sim_status_text');
+        const simStatusDot = document.getElementById('sim_status_dot');
+        const startBtnText = document.getElementById('start_btn_text');
+
+        // Initialize App Parameters
+        function initParamsFromUI() {
+            collisionType = collisionTypeSelect.value;
+            m1 = Math.max(0.1, parseFloat(m1Input.value) || 2.0);
+            m2 = Math.max(0.1, parseFloat(m2Input.value) || 3.0);
+            v1_init = parseFloat(v1Input.value) || 0;
+            v2_init = parseFloat(v2Input.value) || 0;
+            e_exp = Math.max(0, parseFloat(eExpInput.value) || 0);
+
+            // UI Mode Adjustments for Explosion vs Collisions
+            if (collisionType === 'explosion') {
+                eSliderContainer.classList.add('hidden');
+                explosionContainer.classList.remove('hidden');
+                v2InputContainer.classList.add('hidden');
+
+                titleBodyA.innerHTML = '<i class="fa-solid fa-burst text-rose-500 text-xs mr-1"></i> Τμήμα A (Αριστερό)';
+                titleBodyB.innerHTML = '<i class="fa-solid fa-burst text-blue-500 text-xs mr-1"></i> Τμήμα B (Δεξί)';
+                badgeBodyA.innerText = 'm₁, v₁\'';
+                badgeBodyB.innerText = 'm₂, v₂\'';
+                lblM1.innerText = 'Μάζα m₁ (kg)';
+                lblM2.innerText = 'Μάζα m₂ (kg)';
+                lblV1.innerText = 'Αρχική Ταχ. Σώματος V₀ (m/s)';
+                liveV1Lbl.innerHTML = '<i class="fa-solid fa-gauge-high mr-1"></i> Τμήμα A (v₁):';
+                liveV2Lbl.innerHTML = '<i class="fa-solid fa-gauge-high mr-1"></i> Τμήμα B (v₂):';
+                lblKDiff.innerText = "Ελευθερούμενη Ενέργεια (ΔE)";
+
+                // Default visual for explosion to bomb if not set
+                if (visualType === 'balls') {
+                    setVisualType('bomb');
+                }
+            } else {
+                explosionContainer.classList.add('hidden');
+                v2InputContainer.classList.remove('hidden');
+
+                titleBodyA.innerHTML = '<i class="fa-solid fa-square-full text-rose-500 text-xs mr-1"></i> Σώμα A (Κόκκινο)';
+                titleBodyB.innerHTML = '<i class="fa-solid fa-square-full text-blue-500 text-xs mr-1"></i> Σώμα B (Μπλε)';
+                badgeBodyA.innerText = 'm₁ , v₁';
+                badgeBodyB.innerText = 'm₂ , v₂';
+                lblM1.innerText = 'Μάζα m₁ (kg)';
+                lblM2.innerText = 'Μάζα m₂ (kg)';
+                lblV1.innerText = 'Αρχ. Ταχύτητα v₁ (m/s)';
+                liveV1Lbl.innerHTML = '<i class="fa-solid fa-gauge-high mr-1"></i> Σώμα A (v₁):';
+                liveV2Lbl.innerHTML = '<i class="fa-solid fa-gauge-high mr-1"></i> Σώμα B (v₂):';
+                lblKDiff.innerText = "Απώλεια Ενέργειας (ΔK)";
+
+                if (collisionType === 'elastic') {
+                    e_coeff = 1.0;
+                    eSliderContainer.classList.add('hidden');
+                } else if (collisionType === 'plastic') {
+                    e_coeff = 0.0;
+                    eSliderContainer.classList.add('hidden');
+                } else { // inelastic
+                    e_coeff = parseFloat(eSlider.value);
+                    eSliderContainer.classList.remove('hidden');
+                    eValDisp.innerText = e_coeff.toFixed(2);
+                }
+            }
+
+            calculatePhysics();
+        }
+
+        // Theoretical Physics Formulas
+        function calculatePhysics() {
+            if (collisionType === 'explosion') {
+                // Initial state: Unified body of mass M = m1 + m2 moving at V0 = v1_init
+                const M = m1 + m2;
+                const V0 = v1_init;
+
+                // Relative velocity after explosion derived from relative kinetic energy equation:
+                // E_exp = 0.5 * mu * v_rel^2  where mu = (m1 * m2) / (m1 + m2)
+                const mu = (m1 * m2) / M;
+                const v_rel = Math.sqrt((2 * e_exp) / mu);
+
+                // Momentum conservation: m1*v1' + m2*v2' = M*V0, and v2' - v1' = v_rel
+                v1_final = V0 - (m2 / M) * v_rel;
+                v2_final = V0 + (m1 / M) * v_rel;
+
+                // Momentum
+                const p_init = M * V0;
+                const p_final = m1 * v1_final + m2 * v2_final;
+
+                // Kinetic Energies
+                const k_init = 0.5 * M * Math.pow(V0, 2);
+                const k_final = 0.5 * m1 * Math.pow(v1_final, 2) + 0.5 * m2 * Math.pow(v2_final, 2);
+                const k_gain = k_final - k_init;
+
+                // Update UI Outputs
+                resV1Prime.innerText = v1_final.toFixed(2) + ' m/s';
+                resV2Prime.innerText = v2_final.toFixed(2) + ' m/s';
+                resPInit.innerText = p_init.toFixed(2) + ' kg·m/s';
+                resPFinal.innerText = p_final.toFixed(2) + ' kg·m/s';
+
+                resKInit.innerText = k_init.toFixed(2) + ' J';
+                resKFinal.innerText = k_final.toFixed(2) + ' J';
+
+                resKLoss.innerText = `+${k_gain.toFixed(2)} J (E_exp)`;
+                resKLoss.className = "text-lg font-bold font-mono text-amber-400";
+
+                const maxK = Math.max(k_init, k_final, 1);
+                barKInit.style.width = `${(k_init / maxK) * 100}%`;
+                barKFinal.style.width = `${(k_final / maxK) * 100}%`;
+
+            } else {
+                // Collisions (Elastic, Inelastic, Plastic)
+                if (collisionType === 'plastic') {
+                    const v_common = (m1 * v1_init + m2 * v2_init) / (m1 + m2);
+                    v1_final = v_common;
+                    v2_final = v_common;
+                } else {
+                    v1_final = (m1 * v1_init + m2 * v2_init + m2 * e_coeff * (v2_init - v1_init)) / (m1 + m2);
+                    v2_final = (m1 * v1_init + m2 * v2_init + m1 * e_coeff * (v1_init - v2_init)) / (m1 + m2);
+                }
+
+                const p_total_init = m1 * v1_init + m2 * v2_init;
+                const p_total_final = m1 * v1_final + m2 * v2_final;
+
+                const k_total_init = 0.5 * m1 * Math.pow(v1_init, 2) + 0.5 * m2 * Math.pow(v2_init, 2);
+                const k_total_final = 0.5 * m1 * Math.pow(v1_final, 2) + 0.5 * m2 * Math.pow(v2_final, 2);
+
+                const k_loss = k_total_final - k_total_init;
+                const k_loss_pct = k_total_init > 0 ? (Math.abs(k_loss) / k_total_init) * 100 : 0;
+
+                resV1Prime.innerText = v1_final.toFixed(2) + ' m/s';
+                resV2Prime.innerText = v2_final.toFixed(2) + ' m/s';
+                resPInit.innerText = p_total_init.toFixed(2) + ' kg·m/s';
+                resPFinal.innerText = p_total_final.toFixed(2) + ' kg·m/s';
+
+                resKInit.innerText = k_total_init.toFixed(2) + ' J';
+                resKFinal.innerText = k_total_final.toFixed(2) + ' J';
+
+                if (Math.abs(k_loss) < 0.001) {
+                    resKLoss.innerText = "0.00 J (0%)";
+                    resKLoss.className = "text-lg font-bold font-mono text-emerald-400";
+                } else {
+                    resKLoss.innerText = `${k_loss.toFixed(2)} J (-${k_loss_pct.toFixed(1)}%)`;
+                    resKLoss.className = "text-lg font-bold font-mono text-rose-400";
+                }
+
+                const maxK = Math.max(k_total_init, k_total_final, 1);
+                barKInit.style.width = `${(k_total_init / maxK) * 100}%`;
+                barKFinal.style.width = `${(k_total_final / maxK) * 100}%`;
+            }
+        }
+
+        // Reset positions & animation state
+        function resetSim() {
+            simRunning = false;
+            isCollided = false;
+            particles = [];
+            startBtnText.innerText = "Εκκίνηση";
+            simStatusText.innerText = "Έτοιμο προς εκκίνηση";
+            simStatusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+
+            initParamsFromUI();
+
+            const width = canvas.width || 800;
+
+            if (collisionType === 'explosion') {
+                // Unified object starts at center
+                x1 = width * 0.5;
+                x2 = width * 0.5;
+                v1_current = v1_init;
+                v2_current = v1_init; // moves together initially
+            } else {
+                x1 = width * 0.25;
+                x2 = width * 0.75;
+                v1_current = v1_init;
+                v2_current = v2_init;
+            }
+
+            r1 = 20 + Math.cbrt(m1) * 8;
+            r2 = 20 + Math.cbrt(m2) * 8;
+
+            draw();
+        }
+
+        function triggerExplosionEffects(x, y) {
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 20 + Math.random() * 120;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 20,
+                    life: 1.0,
+                    size: 3 + Math.random() * 6,
+                    color: Math.random() > 0.5 ? '#f97316' : '#ef4444'
+                });
+            }
+        }
+
+        function togglePlay() {
+            simRunning = !simRunning;
+            if (simRunning) {
+                startBtnText.innerText = "Παύση";
+                simStatusText.innerText = isCollided ? "Σε κίνηση (Μετά)" : "Σε κίνηση (Πριν)";
+                simStatusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse";
+                lastTime = performance.now();
+                animate();
+            } else {
+                startBtnText.innerText = "Συνέχεια";
+                simStatusText.innerText = "Σε Παύση";
+                simStatusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+                if (animationId) cancelAnimationFrame(animationId);
+            }
+        }
+
+        function stepSim() {
+            if (simRunning) togglePlay();
+            updatePhysicsStep(0.016);
+            draw();
+        }
+
+        function setSpeed(sp) {
+            simSpeed = sp;
+            ['speed_025', 'speed_05', 'speed_1', 'speed_2'].forEach(id => {
+                document.getElementById(id).classList.remove('bg-sky-600', 'text-white');
+                document.getElementById(id).classList.add('text-slate-400');
+            });
+            if (sp === 0.25) document.getElementById('speed_025').classList.add('bg-sky-600', 'text-white');
+            if (sp === 0.5) document.getElementById('speed_05').classList.add('bg-sky-600', 'text-white');
+            if (sp === 1.0) document.getElementById('speed_1').classList.add('bg-sky-600', 'text-white');
+            if (sp === 2.0) document.getElementById('speed_2').classList.add('bg-sky-600', 'text-white');
+        }
+
+        function setVisualType(type) {
+            visualType = type;
+            document.querySelectorAll('.vis-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-600', 'text-white', 'border-sky-400');
+                btn.classList.add('bg-slate-900', 'text-slate-300', 'border-slate-700');
+            });
+            const activeBtn = document.getElementById('btn_vis_' + type);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-900', 'text-slate-300', 'border-slate-700');
+                activeBtn.classList.add('bg-sky-600', 'text-white', 'border-sky-400');
+            }
+            draw();
+        }
+
+        // --- Physics Update Animation Loop ---
+        let lastTime = 0;
+        let explosionTimer = 0;
+
+        function updatePhysicsStep(dt) {
+            const scaleFactor = 18; // m/s to pixels
+
+            if (collisionType === 'explosion') {
+                if (!isCollided) {
+                    // Unified object moves together with V0
+                    x1 += v1_current * scaleFactor * dt * simSpeed;
+                    x2 = x1;
+                    explosionTimer += dt * simSpeed;
+
+                    // Trigger explosion after 1.2 seconds or if it moves too far
+                    if (explosionTimer >= 1.2) {
+                        isCollided = true;
+                        v1_current = v1_final;
+                        v2_current = v2_final;
+                        triggerExplosionEffects(x1, groundY - r1);
+
+                        simStatusText.innerText = "Έγινε Έκρηξη! (Διάσπαση Σώματος)";
+                        simStatusDot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping";
+                    }
+                } else {
+                    // Fragments move apart with v1' and v2'
+                    x1 += v1_current * scaleFactor * dt * simSpeed;
+                    x2 += v2_current * scaleFactor * dt * simSpeed;
+                }
+            } else {
+                // Standard Collisions
+                if (!isCollided) {
+                    x1 += v1_current * scaleFactor * dt * simSpeed;
+                    x2 += v2_current * scaleFactor * dt * simSpeed;
+
+                    if ((x2 - x1) <= (r1 + r2)) {
+                        isCollided = true;
+                        const overlap = (r1 + r2) - (x2 - x1);
+                        x1 -= overlap / 2;
+                        x2 += overlap / 2;
+
+                        v1_current = v1_final;
+                        v2_current = v2_final;
+
+                        simStatusText.innerText = "Έγινε Κρούση!";
+                        simStatusDot.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                    }
+                } else {
+                    if (collisionType === 'plastic') {
+                        x1 += v1_current * scaleFactor * dt * simSpeed;
+                        x2 = x1 + (r1 + r2);
+                    } else {
+                        x1 += v1_current * scaleFactor * dt * simSpeed;
+                        x2 += v2_current * scaleFactor * dt * simSpeed;
+                    }
+                }
+            }
+
+            // Update Explosion Fire Particles
+            particles.forEach(p => {
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                p.life -= dt * 1.5;
+            });
+            particles = particles.filter(p => p.life > 0);
+        }
+
+        function animate(now = performance.now()) {
+            if (!simRunning) return;
+            const dt = Math.min((now - lastTime) / 1000, 0.033);
+            lastTime = now;
+
+            updatePhysicsStep(dt);
+            draw();
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // --- Drawing Functions ---
+        function draw() {
+            const width = canvas.width;
+            const height = canvas.height;
+            groundY = height * 0.72;
+
+            ctx.clearRect(0, 0, width, height);
+
+            drawEnvironment(width, height);
+
+            liveV1.innerText = v1_current.toFixed(2) + ' m/s';
+            liveV2.innerText = v2_current.toFixed(2) + ' m/s';
+
+            if (collisionType === 'explosion' && !isCollided) {
+                // Draw single unified body before explosion
+                drawBody(x1, groundY, r1 + r2 * 0.5, m1 + m2, v1_current, '#f59e0b', `M = ${m1+m2}kg`, visualType, true);
+            } else {
+                // Draw 2 Bodies/Fragments
+                drawBody(x1, groundY, r1, m1, v1_current, '#ef4444', collisionType === 'explosion' ? 'm₁' : 'Σώμα A', visualType);
+                drawBody(x2, groundY, r2, m2, v2_current, '#3b82f6', collisionType === 'explosion' ? 'm₂' : 'Σώμα B', visualType);
+            }
+
+            // Draw Explosion Particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function drawEnvironment(w, h) {
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, groundY);
+            ctx.lineTo(w, groundY);
+            ctx.stroke();
+
+            ctx.fillStyle = '#334155';
+            for (let x = 10; x < w; x += 60) {
+                ctx.fillRect(x, groundY + 4, 30, 6);
+            }
+        }
+
+        function drawBody(x, y, r, mass, velocity, color, label, type, isUnified = false) {
+            ctx.save();
+
+            const centerY = y - r;
+
+            if (type === 'bomb') {
+                // Bomb / Explosive Visual
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(x, y + 2, r * 0.9, r * 0.25, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                const grad = ctx.createRadialGradient(x - r * 0.3, centerY - r * 0.3, r * 0.1, x, centerY, r);
+                grad.addColorStop(0, '#64748b');
+                grad.addColorStop(0.5, isUnified ? '#b45309' : color);
+                grad.addColorStop(1, '#0f172a');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(x, centerY, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Fuse line for bomb
+                if (isUnified) {
+                    ctx.strokeStyle = '#f97316';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(x, centerY - r);
+                    ctx.quadraticCurveTo(x + 10, centerY - r - 15, x + 20, centerY - r - 10);
+                    ctx.stroke();
+
+                    // Spark on fuse
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath();
+                    ctx.arc(x + 20, centerY - r - 10, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${label} (${mass}kg)`, x, centerY + 4);
+                drawVelocityArrow(x, centerY - r - 14, velocity, color);
+
+            } else if (type === 'balls') {
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(x, y + 2, r * 0.9, r * 0.25, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                const grad = ctx.createRadialGradient(x - r * 0.3, centerY - r * 0.3, r * 0.1, x, centerY, r);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.3, color);
+                grad.addColorStop(1, '#0f172a');
+
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(x, centerY, r, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${label} (${mass}kg)`, x, centerY + 4);
+                drawVelocityArrow(x, centerY - r - 12, velocity, color);
+
+            } else if (type === 'cars' || type === 'trucks') {
+                const carWidth = r * 2.2;
+                const carHeight = r * 1.3;
+                const carX = x - carWidth / 2;
+                const carY = y - carHeight - 6;
+                const wheelRadius = r * 0.3;
+
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                if (type === 'cars') {
+                    ctx.roundRect(carX, carY + carHeight * 0.35, carWidth, carHeight * 0.65, 8);
+                    ctx.fill();
+                    ctx.fillStyle = '#0f172a';
+                    ctx.beginPath();
+                    ctx.roundRect(carX + carWidth * 0.2, carY, carWidth * 0.6, carHeight * 0.5, 6);
+                    ctx.fill();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                } else {
+                    ctx.roundRect(carX, carY, carWidth * 0.75, carHeight, 6);
+                    ctx.fill();
+                    ctx.fillStyle = '#1e293b';
+                    ctx.roundRect(carX + carWidth * 0.72, carY + carHeight * 0.2, carWidth * 0.28, carHeight * 0.8, 4);
+                    ctx.fill();
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = '#020617';
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2;
+
+                ctx.beginPath();
+                ctx.arc(carX + carWidth * 0.25, y - wheelRadius, wheelRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(carX + carWidth * 0.75, y - wheelRadius, wheelRadius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${label} (${mass}kg)`, x, carY - 8);
+                drawVelocityArrow(x, carY - 24, velocity, color);
+            }
+
+            ctx.restore();
+        }
+
+        function drawVelocityArrow(x, y, v, color) {
+            if (Math.abs(v) < 0.05) return;
+
+            const arrowLength = v * 8;
+            const endX = x + arrowLength;
+
+            ctx.save();
+            ctx.strokeStyle = '#f8fafc';
+            ctx.fillStyle = '#f8fafc';
+            ctx.lineWidth = 2.5;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(endX, y);
+            ctx.stroke();
+
+            const headSize = 6;
+            const dir = v > 0 ? 1 : -1;
+            ctx.beginPath();
+            ctx.moveTo(endX, y);
+            ctx.lineTo(endX - dir * headSize, y - headSize / 1.5);
+            ctx.lineTo(endX - dir * headSize, y + headSize / 1.5);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.font = 'bold 10px Fira Code';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#e2e8f0';
+            ctx.fillText(`v = ${v.toFixed(1)} m/s`, x + arrowLength / 2, y - 6);
+
+            ctx.restore();
+        }
+
+        // --- Event Listeners for UI Inputs ---
+        [m1Input, m2Input, v1Input, v2Input, eExpInput].forEach(inp => {
+            inp.addEventListener('input', () => {
+                resetSim();
+            });
+        });
+
+        collisionTypeSelect.addEventListener('change', () => {
+            resetSim();
+        });
+
+        eSlider.addEventListener('input', () => {
+            resetSim();
+        });
+
+        window.onload = function() {
+            resizeCanvas();
+            resetSim();
+        };
+    </script>
+</body>
+</html>

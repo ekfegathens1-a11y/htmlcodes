@@ -1,0 +1,572 @@
+DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ρ    <title>Υπολογιστής Παασκευής & Αραίωσης Διαλυμάτων </title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styling for inputs */
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="bg-indigo-900 text-white shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-flask-vial text-3xl text-cyan-400"></i>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold leading-tight">LabCalc Chemistry</h1>
+                    <p class="text-xs text-indigo-200">Υπολογιστής Παρασκευής & Αραίωσης Διαλυμάτων-
+                      ΕΚΦΕ Αγ. Αναργύρων- Χρήστος Γεωργόπουλος</p>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold leading-tight">ΕΚΦΕ Αγ.Αναργύρων</h1>
+                    <p class="text-xs text-indigo-200">Χρήστος Γεωργόπουλος</p>
+                </div>
+            </div>
+            <div class="hidden sm:block text-right text-xs text-indigo-300">
+                <span><i class="fa-solid fa-vial"></i> Ακριβείς Εργαστηριακοί Υπολογισμοί</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-grow">
+        
+        <!-- Tab Selection (Prep type) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <button id="modeDilutionBtn" onclick="setMode('dilution')" class="p-4 rounded-xl border-2 transition-all flex items-center justify-between shadow-sm bg-white border-indigo-600 text-indigo-900">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-bold text-base">Αραίωση / Παρασκευή από Αρχικό Διάλυμα (Stock)</div>
+                        <div class="text-xs text-slate-500">Υπολογισμός απαιτούμενου όγκου/μάζας από πυκνό διάλυμα</div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-circle-check text-indigo-600 text-xl mode-icon"></i>
+            </button>
+
+            <button id="modeSolidBtn" onclick="setMode('solid')" class="p-4 rounded-xl border-2 transition-all flex items-center justify-between shadow-sm bg-white border-slate-200 text-slate-600 hover:border-indigo-200">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-lg">
+                        <i class="fa-solid fa-cubes-stacked"></i>
+                    </div>
+                    <div class="text-left">
+                        <div class="font-bold text-base">Παρασκευή από Στερεά Ουσία (Καθαρή)</div>
+                        <div class="text-xs text-slate-500">Υπολογισμός μάζας στερεού (100% καθαρότητα) για παρασκευή</div>
+                    </div>
+                </div>
+                <i class="fa-regular fa-circle text-slate-300 text-xl mode-icon"></i>
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Input Form Side (7 cols on lg) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Concentration Unit Toggle -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> 1. Μονάδα Συγκέντρωσης
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3 p-1 bg-slate-100 rounded-xl">
+                        <button id="unitMolarBtn" onclick="setConcUnit('M')" class="py-2.5 px-4 rounded-lg font-medium text-sm transition-all bg-white text-indigo-700 shadow-sm">
+                            Molarity (M - mol/L)
+                        </button>
+                        <button id="unitPercentBtn" onclick="setConcUnit('percent')" class="py-2.5 px-4 rounded-lg font-medium text-sm transition-all text-slate-600 hover:text-slate-900">
+                            Επί τοις εκατό (% w/w)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Parameters Form -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-5">
+                    <h2 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-indigo-600"></i> 2. Παράμετροι Διαλυμάτων
+                    </h2>
+
+                    <!-- Stock Solution Specs (Only for Dilution Mode) -->
+                    <div id="stockSection" class="p-4 bg-indigo-50/60 rounded-xl border border-indigo-100 space-y-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 block">Αρχικό Διάλυμα (Stock Solution)</span>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1" id="c1Label">
+                                    Συγκέντρωση Stock (C₁)
+                                </label>
+                                <div class="relative">
+                                    <input type="number" id="c1Input" step="any" min="0" placeholder="π.χ. 12" 
+                                        class="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-800">
+                                    <span class="absolute right-3 top-2 text-xs font-medium text-slate-500" id="c1UnitTag">M</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                    Πυκνότητα Stock d₁ (g/mL) <span class="text-xs text-slate-400 font-normal">(Προαιρετικό)</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="number" id="d1Input" step="any" min="0" placeholder="π.χ. 1.19" 
+                                        class="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-800">
+                                    <span class="absolute right-3 top-2 text-xs font-medium text-slate-500">g/mL</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Target Solution Specs -->
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 block">Τελικό Επιθυμητό Διάλυμα (Target Solution)</span>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1" id="c2Label">
+                                    Επιθυμητή Συγκέντρωση (C₂)
+                                </label>
+                                <div class="relative">
+                                    <input type="number" id="c2Input" step="any" min="0" placeholder="π.χ. 0.5" 
+                                        class="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-800">
+                                    <span class="absolute right-3 top-2 text-xs font-medium text-slate-500" id="c2UnitTag">M</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                    Ποσότητα Τελικού Διαλύματος
+                                </label>
+                                <div class="flex">
+                                    <input type="number" id="v2Input" step="any" min="0" placeholder="π.χ. 500" 
+                                        class="w-full pl-3 pr-3 py-2 bg-white border border-slate-300 rounded-l-lg text-sm font-semibold text-slate-800 border-r-0">
+                                    <select id="v2Unit" class="bg-slate-100 border border-slate-300 rounded-r-lg px-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                        <option value="mL">mL (όγκος)</option>
+                                        <option value="g">g (μάζα)</option>
+                                        <option value="L">L (όγκος)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Πυκνότητα Τελικού Διαλύματος d₂ (g/mL) <span class="text-xs text-slate-400 font-normal">(Απαιτείται αν διαφέρουν οι μονάδες)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="d2Input" step="any" min="0" placeholder="1.00 (προεπιλογή νερό)" 
+                                    class="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-800">
+                                <span class="absolute right-3 top-2 text-xs font-medium text-slate-500">g/mL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chemical Properties (MW) -->
+                    <div class="p-4 bg-amber-50/50 rounded-xl border border-amber-200/60 space-y-3" id="mwSection">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-800 block">Ιδιότητες Διαλυμένης Ουσίας</span>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Μοριακό Βάρος (MW / Μοριακή Μάζα)
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="mwInput" step="any" min="0" placeholder="π.χ. 58.44 για NaCl" 
+                                    class="w-full pl-3 pr-16 py-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-slate-800">
+                                <span class="absolute right-3 top-2 text-xs font-medium text-slate-500">g/mol</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculate Action Buttons -->
+                    <div class="pt-2 flex gap-3">
+                        <button onclick="calculate()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-calculator"></i> Υπολογισμός
+                        </button>
+                        <button onclick="resetFields()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-3 px-4 rounded-xl transition-all" title="Καθαρισμός πεδίων">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Error Warning Box -->
+                    <div id="errorBox" class="hidden p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm flex items-start gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5"></i>
+                        <div id="errorMessage">Παρακαλώ συμπληρώστε όλα τα απαιτούμενα πεδία με έγκυρες τιμές.</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Results Side (5 cols on lg) -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Main Result Card -->
+                <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl">
+                        <i class="fa-solid fa-flask"></i>
+                    </div>
+
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-indigo-300 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-square-poll-vertical"></i> Αποτελέσματα Παρασκευής
+                    </h2>
+
+                    <!-- Dilution Results -->
+                    <div id="dilutionResults" class="space-y-4">
+                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10">
+                            <div class="text-xs text-indigo-200 mb-1">Απαιτούμενη Ποσότητα Stock (V₁ / m₁)</div>
+                            <div class="text-3xl font-extrabold text-cyan-300" id="resStockAmount">--</div>
+                            <div class="text-xs text-indigo-300 mt-1" id="resStockAlt">--</div>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10">
+                            <div class="text-xs text-indigo-200 mb-1">Ποσότητα Διαλύτη / Νερού που προστίθεται</div>
+                            <div class="text-2xl font-bold text-emerald-300" id="resSolventAmount">--</div>
+                            <div class="text-xs text-indigo-300 mt-1" id="resSolventAlt">--</div>
+                        </div>
+                    </div>
+
+                    <!-- Solid Results (Hidden by default) -->
+                    <div id="solidResults" class="space-y-4 hidden">
+                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10">
+                            <div class="text-xs text-indigo-200 mb-1">Απαιτούμενη Μάζα Στερεού (m)</div>
+                            <div class="text-3xl font-extrabold text-cyan-300" id="resSolidMass">--</div>
+                        </div>
+
+                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10">
+                            <div class="text-xs text-indigo-200 mb-1">Πλήρωση με Διαλύτη (Νερό) έως</div>
+                            <div class="text-2xl font-bold text-emerald-300" id="resTargetVol">--</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-white/10 text-xs text-indigo-200 flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-300"></i>
+                        <span>Προσθέστε πάντα το πυκνό διάλυμα/στερεό στο νερό με ανάδευση.</span>
+                    </div>
+                </div>
+
+                <!-- Step-by-Step Formula Breakdown -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-list-ol text-indigo-600"></i> Βήμα-Βήμα Υπολογισμός & Τύποι
+                    </h3>
+
+                    <div id="stepDetails" class="text-xs font-mono bg-slate-50 p-4 rounded-xl border border-slate-200 text-slate-700 space-y-2 overflow-x-auto leading-relaxed">
+                        <span class="text-slate-400 italic font-sans">Εισάγετε τιμές και πατήστε "Υπολογισμός" για να εμφανιστεί η αναλυτική πορεία επίλυσης.</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+        <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-500">
+            LabCalc Chemistry ΕΚΦΕ ΑΓ. ΑΝΑΡΓΥΡΩΝ - ΧΡΗΣΤΟΣ ΓΕΩΡΓΟΠΟΥΛΟΣ &copy; 2026 - Εργαστηριακός Υπολογιστής Παρασκευής & Αραίωσης Διαλυμάτων
+        </div>
+    </footer>
+
+    <!-- Application Logic Script -->
+    <script>
+        // State Variables
+        let currentMode = 'dilution'; // 'dilution' or 'solid'
+        let currentConcUnit = 'M';    // 'M' or 'percent'
+
+        // DOM Elements
+        const modeDilutionBtn = document.getElementById('modeDilutionBtn');
+        const modeSolidBtn = document.getElementById('modeSolidBtn');
+        const unitMolarBtn = document.getElementById('unitMolarBtn');
+        const unitPercentBtn = document.getElementById('unitPercentBtn');
+        const stockSection = document.getElementById('stockSection');
+        const mwSection = document.getElementById('mwSection');
+        
+        const c1Label = document.getElementById('c1Label');
+        const c2Label = document.getElementById('c2Label');
+        const c1UnitTag = document.getElementById('c1UnitTag');
+        const c2UnitTag = document.getElementById('c2UnitTag');
+
+        const c1Input = document.getElementById('c1Input');
+        const d1Input = document.getElementById('d1Input');
+        const c2Input = document.getElementById('c2Input');
+        const v2Input = document.getElementById('v2Input');
+        const v2Unit = document.getElementById('v2Unit');
+        const d2Input = document.getElementById('d2Input');
+        const mwInput = document.getElementById('mwInput');
+
+        const errorBox = document.getElementById('errorBox');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const dilutionResults = document.getElementById('dilutionResults');
+        const solidResults = document.getElementById('solidResults');
+        const resStockAmount = document.getElementById('resStockAmount');
+        const resStockAlt = document.getElementById('resStockAlt');
+        const resSolventAmount = document.getElementById('resSolventAmount');
+        const resSolventAlt = document.getElementById('resSolventAlt');
+        const resSolidMass = document.getElementById('resSolidMass');
+        const resTargetVol = document.getElementById('resTargetVol');
+        const stepDetails = document.getElementById('stepDetails');
+
+        // Mode Switch Handler
+        function setMode(mode) {
+            currentMode = mode;
+            if (mode === 'dilution') {
+                modeDilutionBtn.className = "p-4 rounded-xl border-2 transition-all flex items-center justify-between shadow-sm bg-white border-indigo-600 text-indigo-900";
+                modeSolidBtn.className = "p-4 rounded-xl border-2 transition-all flex items-center justify-between shadow-sm bg-white border-slate-200 text-slate-600 hover:border-indigo-200";
+                modeDilutionBtn.querySelector('.mode-icon').className = "fa-solid fa-circle-check text-indigo-600 text-xl mode-icon";
+                modeSolidBtn.querySelector('.mode-icon').className = "fa-regular fa-circle text-slate-300 text-xl mode-icon";
+                stockSection.classList.remove('hidden');
+                dilutionResults.classList.remove('hidden');
+                solidResults.classList.add('hidden');
+            } else {
+                modeSolidBtn.className = "p-4 rounded-xl border-2 transition-all flex items-center justify-between shadow-sm bg-white border-indigo-600 text-indigo-900";
+                modeDilutionBtn.className = "p-4 rounded-xl border-2 transition-all flex items-center justify-between shadow-sm bg-white border-slate-200 text-slate-600 hover:border-indigo-200";
+                modeSolidBtn.querySelector('.mode-icon').className = "fa-solid fa-circle-check text-indigo-600 text-xl mode-icon";
+                modeDilutionBtn.querySelector('.mode-icon').className = "fa-regular fa-circle text-slate-300 text-xl mode-icon";
+                stockSection.classList.add('hidden');
+                dilutionResults.classList.add('hidden');
+                solidResults.classList.remove('hidden');
+            }
+            updateUnitLabels();
+            calculate();
+        }
+
+        // Concentration Unit Switch Handler
+        function setConcUnit(unit) {
+            currentConcUnit = unit;
+            if (unit === 'M') {
+                unitMolarBtn.className = "py-2.5 px-4 rounded-lg font-medium text-sm transition-all bg-white text-indigo-700 shadow-sm";
+                unitPercentBtn.className = "py-2.5 px-4 rounded-lg font-medium text-sm transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                unitPercentBtn.className = "py-2.5 px-4 rounded-lg font-medium text-sm transition-all bg-white text-indigo-700 shadow-sm";
+                unitMolarBtn.className = "py-2.5 px-4 rounded-lg font-medium text-sm transition-all text-slate-600 hover:text-slate-900";
+            }
+            updateUnitLabels();
+            calculate();
+        }
+
+        // Update Labels based on current selection
+        function updateUnitLabels() {
+            const unitText = currentConcUnit === 'M' ? 'M (mol/L)' : '% w/w';
+            const unitTagText = currentConcUnit === 'M' ? 'M' : '% w/w';
+
+            c1Label.innerText = `Συγκέντρωση Stock (C₁) [${unitText}]`;
+            c2Label.innerText = `Επιθυμητή Συγκέντρωση (C₂) [${unitText}]`;
+            c1UnitTag.innerText = unitTagText;
+            c2UnitTag.innerText = unitTagText;
+
+            // MW requirement display control
+            if (currentConcUnit === 'M') {
+                mwSection.classList.remove('opacity-50');
+            } else {
+                mwSection.classList.remove('opacity-50');
+            }
+        }
+
+        function showError(msg) {
+            errorMessage.innerText = msg;
+            errorBox.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorBox.classList.add('hidden');
+        }
+
+        function resetFields() {
+            c1Input.value = '';
+            d1Input.value = '';
+            c2Input.value = '';
+            v2Input.value = '';
+            d2Input.value = '';
+            mwInput.value = '';
+            hideError();
+            stepDetails.innerHTML = '<span class="text-slate-400 italic font-sans">Εισάγετε τιμές και πατήστε "Υπολογισμός" για να εμφανιστεί η αναλυτική πορεία επίλυσης.</span>';
+            resStockAmount.innerText = '--';
+            resStockAlt.innerText = '--';
+            resSolventAmount.innerText = '--';
+            resSolventAlt.innerText = '--';
+            resSolidMass.innerText = '--';
+            resTargetVol.innerText = '--';
+        }
+
+        // Main Calculation Function
+        function calculate() {
+            hideError();
+
+            const c2 = parseFloat(c2Input.value);
+            const rawV2 = parseFloat(v2Input.value);
+            const v2UnitVal = v2Unit.value;
+            const d2 = parseFloat(d2Input.value) || 1.0; // Default density 1 g/mL
+            const mw = parseFloat(mwInput.value);
+
+            // Basic Validation
+            if (isNaN(c2) || c2 <= 0) {
+                if (c2Input.value !== '') showError('Παρακαλώ εισάγετε μια έγκυρη θετική τιμή για την επιθυμητή συγκέντρωση (C₂).');
+                return;
+            }
+            if (isNaN(rawV2) || rawV2 <= 0) {
+                if (v2Input.value !== '') showError('Παρακαλώ εισάγετε μια έγκυρη θετική τιμή για την ποσότητα του τελικού διαλύματος.');
+                return;
+            }
+
+            // Convert V2 to mL and g for unified internal use
+            let targetVol_mL = 0;
+            let targetMass_g = 0;
+
+            if (v2UnitVal === 'mL') {
+                targetVol_mL = rawV2;
+                targetMass_g = targetVol_mL * d2;
+            } else if (v2UnitVal === 'L') {
+                targetVol_mL = rawV2 * 1000;
+                targetMass_g = targetVol_mL * d2;
+            } else if (v2UnitVal === 'g') {
+                targetMass_g = rawV2;
+                targetVol_mL = targetMass_g / d2;
+            }
+
+            let steps = [];
+            steps.push(`=== 1. ΑΡΧΙΚΑ ΔΕΔΟΜΕΝΑ & ΜΕΤΑΤΡΟΠΕΣ ===`);
+            steps.push(`• Τελικό Διάλυμα: V₂ = ${targetVol_mL.toFixed(2)} mL | m₂ = ${targetMass_g.toFixed(2)} g (με πυκνότητα d₂ = ${d2} g/mL)`);
+            steps.push(`• Επιθυμητή Συγκέντρωση: C₂ = ${c2} ${currentConcUnit === 'M' ? 'mol/L' : '% w/w'}`);
+
+            if (currentMode === 'solid') {
+                // PREPARATION FROM SOLID
+                if (currentConcUnit === 'M') {
+                    if (isNaN(mw) || mw <= 0) {
+                        showError('Για υπολογισμό Molarity (M) απαιτείται το Μοριακό Βάρος (MW) της διαλυμένης ουσίας.');
+                        return;
+                    }
+                    // m = M * V(L) * MW
+                    const volL = targetVol_mL / 1000;
+                    const massNeeded = c2 * volL * mw;
+
+                    steps.push(`\n=== 2. ΥΠΟΛΟΓΙΣΜΟΣ ΜΑΖΑΣ ΣΤΕΡΕΟΥ (Molarity) ===`);
+                    steps.push(`• Τύπος: m (g) = C (mol/L) × V (L) × MW (g/mol)`);
+                    steps.push(`• Αντικατάσταση: m = ${c2} mol/L × ${volL.toFixed(4)} L × ${mw} g/mol`);
+                    steps.push(`• Αποτέλεσμα: m = ${massNeeded.toFixed(4)} g στερεού`);
+
+                    resSolidMass.innerText = `${massNeeded.toFixed(3)} g`;
+                    resTargetVol.innerText = `${targetVol_mL.toFixed(1)} mL (με νερό)`;
+
+                } else { // % w/w
+                    // m_solute = ( %w/w / 100 ) * m_solution
+                    const massNeeded = (c2 / 100) * targetMass_g;
+                    const solventMass = targetMass_g - massNeeded;
+
+                    steps.push(`\n=== 2. ΥΠΟΛΟΓΙΣΜΟΣ ΜΑΖΑΣ ΣΤΕΡΕΟΥ (% w/w) ===`);
+                    steps.push(`• Τύπος: m_ουσίας = (% w/w / 100) × m_διαλύματος`);
+                    steps.push(`• Αντικατάσταση: m_ουσίας = (${c2} / 100) × ${targetMass_g.toFixed(2)} g`);
+                    steps.push(`• Αποτέλεσμα: m_ουσίας = ${massNeeded.toFixed(3)} g στερεού`);
+                    steps.push(`• Απαιτούμενος Διαλύτης (Νερό): ${targetMass_g.toFixed(2)} g - ${massNeeded.toFixed(3)} g = ${solventMass.toFixed(3)} g (ή mL)`);
+
+                    resSolidMass.innerText = `${massNeeded.toFixed(3)} g`;
+                    resTargetVol.innerText = `${targetVol_mL.toFixed(1)} mL (προσθήκη ${solventMass.toFixed(2)} g H₂O)`;
+                }
+
+            } else {
+                // DILUTION FROM STOCK
+                const c1 = parseFloat(c1Input.value);
+                const d1 = parseFloat(d1Input.value) || 0;
+
+                if (isNaN(c1) || c1 <= 0) {
+                    if (c1Input.value !== '') showError('Παρακαλώ εισάγετε μια έγκυρη συγκέντρωση για το αρχικό διάλυμα (C₁).');
+                    return;
+                }
+
+                if (c2 >= c1) {
+                    showError('Η συγκέντρωση του αρχικού διαλύματος (C₁) πρέπει να είναι μεγαλύτερη από την επιθυμητή (C₂).');
+                    return;
+                }
+
+                steps.push(`• Αρχικό Διάλυμα (Stock): C₁ = ${c1} ${currentConcUnit === 'M' ? 'mol/L' : '% w/w'}`);
+                if (d1 > 0) steps.push(`• Πυκνότητα Stock d₁ = ${d1} g/mL`);
+
+                if (currentConcUnit === 'M') {
+                    // C1 * V1 = C2 * V2
+                    const v1_mL = (c2 * targetVol_mL) / c1;
+                    const solvent_mL = targetVol_mL - v1_mL;
+
+                    steps.push(`\n=== 2. ΥΠΟΛΟΓΙΣΜΟΣ ΑΡΑΙΩΣΗΣ (C₁V₁ = C₂V₂) ===`);
+                    steps.push(`• Τύπος: V₁ = (C₂ × V₂) / C₁`);
+                    steps.push(`• Αντικατάσταση: V₁ = (${c2} M × ${targetVol_mL.toFixed(2)} mL) / ${c1} M`);
+                    steps.push(`• Αποτέλεσμα: V₁ = ${v1_mL.toFixed(3)} mL Stock`);
+                    steps.push(`• Όγκος Νερού (V_solvent) = V₂ - V₁ = ${targetVol_mL.toFixed(2)} - ${v1_mL.toFixed(3)} = ${solvent_mL.toFixed(3)} mL`);
+
+                    let v1_g_text = "";
+                    if (d1 > 0) {
+                        const m1_g = v1_mL * d1;
+                        v1_g_text = `(ισοδυναμεί με ${m1_g.toFixed(3)} g)`;
+                        steps.push(`• Μάζα Stock (με d₁=${d1} g/mL): m₁ = ${v1_mL.toFixed(3)} mL × ${d1} g/mL = ${m1_g.toFixed(3)} g`);
+                    }
+
+                    resStockAmount.innerText = `${v1_mL.toFixed(2)} mL`;
+                    resStockAlt.innerText = v1_g_text || `Αρχικό Διάλυμα Stock`;
+                    resSolventAmount.innerText = `${solvent_mL.toFixed(2)} mL`;
+                    resSolventAlt.innerText = `Καθαρό Απεσταγμένο Νερό (H₂O)`;
+
+                } else { // % w/w
+                    // m1 * w1 = m2 * w2
+                    const m1_g = (c2 * targetMass_g) / c1;
+                    const solvent_g = targetMass_g - m1_g;
+
+                    steps.push(`\n=== 2. ΥΠΟΛΟΓΙΣΜΟΣ ΑΡΑΙΩΣΗΣ (m₁ × %₁ = m₂ × %₂) ===`);
+                    steps.push(`• Τύπος: m₁ = (m₂ × %₂) / %₁`);
+                    steps.push(`• Αντικατάσταση: m₁ = (${targetMass_g.toFixed(2)} g × ${c2}%) / ${c1}%`);
+                    steps.push(`• Αποτέλεσμα: m₁ = ${m1_g.toFixed(3)} g Stock`);
+                    steps.push(`• Μάζα Νερού (m_solvent) = m₂ - m₁ = ${targetMass_g.toFixed(2)} - ${m1_g.toFixed(3)} = ${solvent_g.toFixed(3)} g`);
+
+                    let v1_mL_text = "";
+                    if (d1 > 0) {
+                        const v1_mL = m1_g / d1;
+                        v1_mL_text = `(ισοδυναμεί με ${v1_mL.toFixed(3)} mL με d₁=${d1} g/mL)`;
+                        steps.push(`• Όγκος Stock: V₁ = ${m1_g.toFixed(3)} g / ${d1} g/mL = ${v1_mL.toFixed(3)} mL`);
+                    }
+
+                    resStockAmount.innerText = `${m1_g.toFixed(2)} g`;
+                    resStockAlt.innerText = v1_mL_text || `Αρχικό Διάλυμα Stock`;
+                    resSolventAmount.innerText = `${solvent_g.toFixed(2)} g`;
+                    resSolventAlt.innerText = `~ ${solvent_g.toFixed(2)} mL Απεσταγμένου Νερού`;
+                }
+            }
+
+            // Optional Conversion Info between M and % w/w if MW and d are provided
+            if (mw > 0 && d2 > 0) {
+                steps.push(`\n=== 3. ΜΕΤΑΤΡΟΠΗ ΣΥΓΚΕΝΤΡΩΣΕΩΝ (% w/w <-> M) ===`);
+                steps.push(`• Τύπος Μετατροπής: M = (10 × %w/w × d) / MW`);
+                if (currentConcUnit === 'percent') {
+                    const equivalentM = (10 * c2 * d2) / mw;
+                    steps.push(`• Το τελικό διάλυμα ${c2}% w/w αντιστοιχεί σε: ${equivalentM.toFixed(4)} M`);
+                } else {
+                    const equivalentPercent = (c2 * mw) / (10 * d2);
+                    steps.push(`• Το τελικό διάλυμα ${c2} M αντιστοιχεί σε: ${equivalentPercent.toFixed(3)} % w/w`);
+                }
+            }
+
+            stepDetails.innerHTML = steps.map(line => `<div>${line}</div>`).join('');
+        }
+
+        // Event Listeners for Live Input
+        const inputs = [c1Input, d1Input, c2Input, v2Input, v2Unit, d2Input, mwInput];
+        inputs.forEach(input => {
+            input.addEventListener('input', calculate);
+            input.addEventListener('change', calculate);
+        });
+
+        // Initial setup
+        updateUnitLabels();
+    </script>
+</body>
+</html>

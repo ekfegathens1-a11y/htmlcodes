@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ΕΚΦΕ Αγ. Αναργύρων - Χρήστος Γεωργόπουλος | Υπολογιστής Ογκομετρήσεων</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-btn.active {
+            border-bottom-color: #0284c7;
+            color: #0284c7;
+            background-color: #f0f9ff;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-slate-900 via-brand-800 to-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-brand-500 rounded-xl shadow-md text-white">
+                    <i class="fa-solid font-bold fa-flask-vial text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight">ΕΚΦΕ Αγ. Αναργύρων</h1>
+                    <p class="text-xs sm:text-sm text-brand-100 font-medium">Εργαστηριακές Αναλύσεις & Υπολογισμοί Ογκομέτρησης — Χρήστος Γεωργόπουλος</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/60 px-3 py-1.5 rounded-full border border-slate-700">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Διαδραστική Εφαρμογή Χημείας</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 mb-8 overflow-hidden">
+            <div class="flex overflow-x-auto border-b border-slate-200 scrollbar-none" id="tabs">
+                <button onclick="switchTab('general')" id="tab-general" class="tab-btn active flex items-center gap-2 py-4 px-6 font-semibold text-slate-600 border-b-2 border-transparent hover:text-brand-600 transition whitespace-nowrap text-sm sm:text-base">
+                    <i class="fa-solid fa-atom"></i> Γενικό Οξύ / Βάση
+                </button>
+                <button onclick="switchTab('oil')" id="tab-oil" class="tab-btn flex items-center gap-2 py-4 px-6 font-semibold text-slate-600 border-b-2 border-transparent hover:text-brand-600 transition whitespace-nowrap text-sm sm:text-base">
+                    <i class="fa-solid fa-bottle-droplet text-amber-500"></i> Ελαιόλαδο
+                </button>
+                <button onclick="switchTab('wine')" id="tab-wine" class="tab-btn flex items-center gap-2 py-4 px-6 font-semibold text-slate-600 border-b-2 border-transparent hover:text-brand-600 transition whitespace-nowrap text-sm sm:text-base">
+                    <i class="fa-solid fa-wine-glass text-rose-600"></i> Κρασί
+                </button>
+                <button onclick="switchTab('milk')" id="tab-milk" class="tab-btn flex items-center gap-2 py-4 px-6 font-semibold text-slate-600 border-b-2 border-transparent hover:text-brand-600 transition whitespace-nowrap text-sm sm:text-base">
+                    <i class="fa-solid fa-cow text-sky-500"></i> Γάλα
+                </button>
+                <button onclick="switchTab('vinegar')" id="tab-vinegar" class="tab-btn flex items-center gap-2 py-4 px-6 font-semibold text-slate-600 border-b-2 border-transparent hover:text-brand-600 transition whitespace-nowrap text-sm sm:text-base">
+                    <i class="fa-solid fa-vial text-purple-600"></i> Ξίδι
+                </button>
+            </div>
+
+            <!-- TAB 1: ΓΕΝΙΚΟ ΟΞΥ / ΒΑΣΗ -->
+            <div id="content-general" class="tab-content p-6 sm:p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Form Side -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-sliders text-brand-600"></i> Παράμετροι Ογκομέτρησης
+                            </h2>
+                            <p class="text-xs text-slate-500">Υπολογισμός άγνωστης συγκέντρωσης (M), pH και pOH.</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Πρότυπο Διάλυμα Προχοΐδας (Τιτλοδοτημένο)</label>
+                                <select id="gen_titrant_type" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                    <option value="base">NaOH (Πρότυπη Βάση)</option>
+                                    <option value="acid">HCl (Πρότυπο Οξύ)</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Συγκέντρωση Προτύπου C<sub>titrant</sub> (M)</label>
+                                    <input type="number" step="0.001" id="gen_c_titrant" value="0.100" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος Προτύπου V<sub>titrant</sub> (mL)</label>
+                                    <input type="number" step="0.01" id="gen_v_titrant" value="12.50" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος Άγνωστου Δείγματος V<sub>sample</sub> (mL)</label>
+                                <input type="number" step="0.1" id="gen_v_sample" value="10.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 space-y-1">
+                            <p class="font-bold"><i class="fa-solid fa-circle-info mr-1"></i> Σημείωση Θεωρίας:</p>
+                            <p>Στο ισοδύναμο σημείο ισχύει: <code>n<sub>titrant</sub> = n<sub>sample</sub></code> ➔ <code>C<sub>1</sub> · V<sub>1</sub> = C<sub>2</sub> · V<sub>2</sub></code> (για μονοπρωτικά οξέα / μονοσθενείς βάσεις).</p>
+                        </div>
+                    </div>
+
+                    <!-- Results Side -->
+                    <div class="lg:col-span-6 bg-slate-100/70 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center justify-between">
+                                <span><i class="fa-solid fa-square-poll-vertical text-brand-600 mr-2"></i>Αποτελέσματα Αναλύσεων</span>
+                                <span class="text-xs font-normal bg-brand-100 text-brand-700 px-2.5 py-1 rounded-full">Γενικός Τύπος</span>
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">Συγκέντρωση Δείγματος</span>
+                                    <span id="gen_res_molar" class="text-2xl font-bold text-slate-800">0.125</span>
+                                    <span class="text-xs font-semibold text-slate-500 ml-1">M (mol/L)</span>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">Τύπος Δείγματος</span>
+                                    <span id="gen_res_type" class="text-lg font-bold text-brand-600">Άγνωστο Οξύ</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">pH Δείγματος (αρχικό)</span>
+                                    <span id="gen_res_ph" class="text-2xl font-bold text-emerald-600">0.90</span>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">pOH Δείγματος</span>
+                                    <span id="gen_res_poh" class="text-2xl font-bold text-blue-600">13.10</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <span class="text-xs font-bold text-slate-600 block mb-1">Ερμηνεία pH:</span>
+                            <p id="gen_ph_desc" class="text-xs text-slate-600">Ισχυρά οπτικό διάλυμα (pH &lt; 3). Υψηλή συγκέντρωση κατιόντων υδρογονίου [H⁺].</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: ΕΛΑΙΟΛΑΔΟ -->
+            <div id="content-oil" class="tab-content hidden p-6 sm:p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Form Side -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-bottle-droplet text-amber-500"></i> Οξύτητα Ελαιολάδου
+                            </h2>
+                            <p class="text-xs text-slate-500">Προσδιορισμός % οξύτητας εκφρασμένης σε ελαϊκό οξύ (Mw = 282.47 g/mol).</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Πρότυπο Διάλυμα (Burette)</label>
+                                <input type="text" readonly value="NaOH (ή KOH) 0.1 M / αλκοολικό" class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2.5 text-sm font-medium text-slate-600 cursor-not-allowed">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Συγκέντρωση NaOH / KOH (M)</label>
+                                    <input type="number" step="0.001" id="oil_c_naoh" value="0.100" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος NaOH V<sub>NaOH</sub> (mL)</label>
+                                    <input type="number" step="0.01" id="oil_v_naoh" value="1.80" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Μάζα Δείγματος Ελαιολάδου (g)</label>
+                                    <input type="number" step="0.01" id="oil_mass" value="10.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Μοριακό Βάρος Ελαϊκού Οξέος</label>
+                                    <input type="number" readonly value="282.47 g/mol" class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2.5 text-sm font-medium text-slate-600 cursor-not-allowed">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600 space-y-1">
+                            <p class="font-bold text-slate-700"><i class="fa-solid fa-calculator mr-1"></i> Μαθηματικός Τύπος:</p>
+                            <p><code>% Οξύτητα = (V<sub>NaOH</sub> · C<sub>NaOH</sub> · 282.47) / (m<sub>λάδι</sub> · 10)</code></p>
+                        </div>
+                    </div>
+
+                    <!-- Results Side -->
+                    <div class="lg:col-span-6 bg-slate-100/70 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center justify-between">
+                                <span><i class="fa-solid fa-award text-amber-500 mr-2"></i>Κατάταξη Ποιότητας Ελαιολάδου</span>
+                                <span class="text-xs font-normal bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">Καν. ΕΕ (ΕΟΚ 2568/91)</span>
+                            </h3>
+
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center mb-6">
+                                <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider block mb-1">Υπολογισθείσα Οξύτητα (% w/w)</span>
+                                <span id="oil_res_acidity" class="text-4xl font-extrabold text-slate-800">0.51%</span>
+                                <div class="mt-4 flex justify-center">
+                                    <span id="oil_res_badge" class="px-4 py-2 rounded-full font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm inline-flex items-center gap-1.5">
+                                        <i class="fa-solid fa-shield-halved"></i> Έξτρα Παρθένο Ελαιόλαδο
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Quality Scale Grid -->
+                            <div class="space-y-2 mb-4">
+                                <div id="oil_cat_extra" class="p-3 rounded-lg border border-slate-200 bg-white flex justify-between items-center text-xs">
+                                    <span class="font-semibold text-emerald-700"><i class="fa-solid fa-circle text-[8px] mr-2"></i>Έξτρα Παρθένο</span>
+                                    <span class="text-slate-500 font-mono">≤ 0.8%</span>
+                                </div>
+                                <div id="oil_cat_virgin" class="p-3 rounded-lg border border-slate-200 bg-white flex justify-between items-center text-xs">
+                                    <span class="font-semibold text-amber-700"><i class="fa-solid fa-circle text-[8px] mr-2"></i>Παρθένο</span>
+                                    <span class="text-slate-500 font-mono">&gt; 0.8% &amp; ≤ 2.0%</span>
+                                </div>
+                                <div id="oil_cat_lampante" class="p-3 rounded-lg border border-slate-200 bg-white flex justify-between items-center text-xs">
+                                    <span class="font-semibold text-rose-700"><i class="fa-solid fa-circle text-[8px] mr-2"></i>Λαμπάντε (Ακατάλληλο)</span>
+                                    <span class="text-slate-500 font-mono">&gt; 2.0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="oil_desc_box" class="p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800">
+                            <strong>Αξιολόγηση:</strong> Εξαιρετικής ποιότητας ελαιόλαδο, κατάλληλο για άμεση βρώση με άριστα οργανοληπτικά χαρακτηριστικά.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: ΚΡΑΣΙ -->
+            <div id="content-wine" class="tab-content hidden p-6 sm:p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Form Side -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-wine-glass text-rose-600"></i> Ολική Οξύτητα Κρασιού
+                            </h2>
+                            <p class="text-xs text-slate-500">Προσδιορισμός οξύτητας σε Τρυγικό Οξύ (Mw = 150.09 g/mol, Διπρωτικό).</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Συγκέντρωση NaOH (M)</label>
+                                    <input type="number" step="0.001" id="wine_c_naoh" value="0.100" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος NaOH V<sub>NaOH</sub> (mL)</label>
+                                    <input type="number" step="0.01" id="wine_v_naoh" value="7.50" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος Δείγματος Κρασιού (mL)</label>
+                                <input type="number" step="0.1" id="wine_v_sample" value="10.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-rose-50 rounded-lg border border-rose-200 text-xs text-rose-800 space-y-1">
+                            <p class="font-bold"><i class="fa-solid fa-flask mr-1"></i> Χημική Ισοδυναμία:</p>
+                            <p>Το τρυγικό οξύ είναι διπρωτικό (H₂C₄H₄O₆), επομένως 1 mol τρυγικού εξουδετερώνεται από 2 mol NaOH.</p>
+                            <p class="mt-1"><code>g/L Τρυγικού = (V<sub>NaOH</sub> · C<sub>NaOH</sub> · 150.09) / (2 · V<sub>δειγμ</sub>)</code></p>
+                        </div>
+                    </div>
+
+                    <!-- Results Side -->
+                    <div class="lg:col-span-6 bg-slate-100/70 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center justify-between">
+                                <span><i class="fa-solid fa-chart-pie text-rose-600 mr-2"></i>Αποτελέσματα Οίνου</span>
+                                <span class="text-xs font-normal bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full">OIV Standard</span>
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">Ολική Οξύτητα (g/L)</span>
+                                    <span id="wine_res_gl" class="text-3xl font-extrabold text-slate-800">5.63</span>
+                                    <span class="text-xs font-semibold text-slate-500 ml-1">g/L</span>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">Ολική Οξύτητα (% w/v)</span>
+                                    <span id="wine_res_wv" class="text-3xl font-extrabold text-rose-600">0.56%</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">Εκτίμηση pH</span>
+                                    <span id="wine_res_ph" class="text-2xl font-bold text-emerald-600">3.45</span>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">Εκτίμηση pOH</span>
+                                    <span id="wine_res_poh" class="text-2xl font-bold text-blue-600">10.55</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+                            <span class="font-bold text-slate-700 block">Τυπικές Τιμές Οίνων:</span>
+                            <p>Τα περισσότερα κρασιά κυμαίνονται μεταξύ <strong>4.5 - 7.0 g/L</strong> σε τρυγικό οξύ. Χαμηλότερες τιμές δίνουν επίπεδη γεύση, ενώ υψηλότερες δίνουν ιδιαίτερα ξινή γεύση.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: ΓΑΛΑ -->
+            <div id="content-milk" class="tab-content hidden p-6 sm:p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Form Side -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-cow text-sky-500"></i> Οξύτητα Γάλακτος (Βαθμοί Dornic)
+                            </h2>
+                            <p class="text-xs text-slate-500">Προσδιορισμός οξύτητας σε °Dornic και % γαλακτικό οξύ (Mw = 90.08 g/mol).</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Συγκέντρωση N/9 NaOH (M)</label>
+                                    <input type="number" step="0.001" id="milk_c_naoh" value="0.111" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                    <span class="text-[10px] text-slate-500">Τυπικά N/9 ≈ 0.111 M (Dornic)</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος NaOH V<sub>NaOH</sub> (mL)</label>
+                                    <input type="number" step="0.01" id="milk_v_naoh" value="1.60" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος Δείγματος Γάλακτος (mL)</label>
+                                <input type="number" step="0.1" id="milk_v_sample" value="10.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-sky-50 rounded-lg border border-sky-200 text-xs text-sky-800 space-y-1">
+                            <p class="font-bold"><i class="fa-solid fa-graduation-cap mr-1"></i> Βαθμοί Dornic (°D):</p>
+                            <p>1 °D αντιστοιχεί σε 0.1 g γαλακτικού οξέος ανά λίτρο γάλακτος (0.01% w/v). Χρησιμοποιείται πρότυπο NaOH N/9 (1/9 Molar).</p>
+                        </div>
+                    </div>
+
+                    <!-- Results Side -->
+                    <div class="lg:col-span-6 bg-slate-100/70 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center justify-between">
+                                <span><i class="fa-solid fa-check-double text-sky-600 mr-2"></i>Φρεσκότητα Γάλακτος</span>
+                                <span class="text-xs font-normal bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full">Κλίμακα Dornic</span>
+                            </h3>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 text-center">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">Βαθμοί Dornic</span>
+                                    <span id="milk_res_dornic" class="text-3xl font-extrabold text-sky-600">16.0 °D</span>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 text-center">
+                                    <span class="text-xs text-slate-500 font-medium block mb-1">% Γαλακτικό Οξύ</span>
+                                    <span id="milk_res_lactic" class="text-3xl font-extrabold text-slate-800">0.16%</span>
+                                </div>
+                            </div>
+
+                            <div id="milk_status_box" class="p-4 rounded-xl border mb-4 text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-emerald-300">
+                                <i class="fa-solid fa-circle-check mr-2"></i>Φρέσκο Νωπό Γάλα (15 - 18 °D)
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
+                            <span class="font-bold text-slate-700 block">Όρια Οξύτητας Γάλακτος:</span>
+                            <div class="flex justify-between border-b pb-1"><span>Φρέσκο Γάλα:</span><span class="font-mono font-semibold">15 - 18 °D</span></div>
+                            <div class="flex justify-between border-b pb-1"><span>Ύποπτο / Αρχή Οξίνισης:</span><span class="font-mono font-semibold">19 - 22 °D</span></div>
+                            <div class="flex justify-between"><span>Θρόμβωση κατά τη θέρμανση:</span><span class="font-mono font-semibold">&gt; 22 °D</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: ΞΙΔΙ -->
+            <div id="content-vinegar" class="tab-content hidden p-6 sm:p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Form Side -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-vial text-purple-600"></i> Οξύτητα Ξιδιού (Οξικό Οξύ)
+                            </h2>
+                            <p class="text-xs text-slate-500">Προσδιορισμός % w/v Οξικού Οξέος (CH₃COOH, Mw = 60.05 g/mol).</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Συγκέντρωση NaOH (M)</label>
+                                    <input type="number" step="0.001" id="vin_c_naoh" value="0.100" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος NaOH V<sub>NaOH</sub> (mL)</label>
+                                    <input type="number" step="0.01" id="vin_v_naoh" value="10.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Όγκος Αρχικού Δείγματος Ξιδιού (mL)</label>
+                                    <input type="number" step="0.1" id="vin_v_sample" value="1.00" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                    <span class="text-[10px] text-slate-500">Συνήθως 1 mL ή αραιωμένο 10 mL</span>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Συντελεστής Αραίωσης (df)</label>
+                                    <input type="number" step="1" id="vin_df" value="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:outline-none text-sm font-medium">
+                                    <span class="text-[10px] text-slate-500">Βάλτε 10 αν έγινε αραίωση 1:10</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-purple-50 rounded-lg border border-purple-200 text-xs text-purple-800 space-y-1">
+                            <p class="font-bold"><i class="fa-solid fa-microscope mr-1"></i> Εμπορική Νομοθεσία:</p>
+                            <p>Σύμφωνα με τον Κώδικα Τροφίμων και Ποτών, το εμπορεύσιμο ξίδι πρέπει να έχει ελάχιστη οξύτητα <strong>6% w/v σε οξικό οξύ</strong> (6 βαθμοί οξύτητας).</p>
+                        </div>
+                    </div>
+
+                    <!-- Results Side -->
+                    <div class="lg:col-span-6 bg-slate-100/70 p-6 rounded-xl border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-md font-bold text-slate-800 mb-4 flex items-center justify-between">
+                                <span><i class="fa-solid fa-list-check text-purple-600 mr-2"></i>Αποτίμηση Ξιδιού</span>
+                                <span class="text-xs font-normal bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full">Βαθμός Οξύτητας</span>
+                            </h3>
+
+                            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 text-center mb-6">
+                                <span class="text-xs text-slate-500 font-semibold uppercase tracking-wider block mb-1">Περιεκτικότητα σε Οξικό Οξύ (% w/v)</span>
+                                <span id="vin_res_acidity" class="text-4xl font-extrabold text-purple-700">6.01%</span>
+                                <div class="mt-3 flex justify-center">
+                                    <span id="vin_res_badge" class="px-3.5 py-1.5 rounded-full font-bold text-xs bg-purple-100 text-purple-800 border border-purple-300 shadow-sm inline-flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check"></i> Κανονικό Εμπορικό Ξίδι (≥ 6%)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+                                <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                    <span class="text-[11px] text-slate-500 font-medium block">Συγκέντρωση</span>
+                                    <span id="vin_res_molar" class="text-lg font-bold text-slate-800">1.00 M</span>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                    <span class="text-[11px] text-slate-500 font-medium block">Εκτίμηση pH</span>
+                                    <span id="vin_res_ph" class="text-lg font-bold text-emerald-600">2.38</span>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                    <span class="text-[11px] text-slate-500 font-medium block">Χαρακτηρισμός</span>
+                                    <span id="vin_res_strength" class="text-sm font-bold text-slate-700">Κανονικό</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="vin_desc_box" class="p-4 bg-purple-50 rounded-xl border border-purple-200 text-xs text-purple-800">
+                            <strong>Αξιολόγηση:</strong> Το δείγμα πληροί τις προδιαγραφές εμπορίου για οξικό ξίδι.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-6 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-medium text-slate-300">Εργαστηριακό Κέντρο Φυσικών Επιστημών (ΕΚΦΕ) Αγίων Αναργύρων</p>
+            <p>Υπεύθυνος Σχεδιασμού & Ανάπτυξης: <span class="text-brand-400 font-semibold">Χρήστος Γεωργόπουλος</span></p>
+            <p class="text-[10px] text-slate-500">© 2026 — Διαδραστική Εκπαιδευτική Εφαρμογή Αναλυτικής Χημείας &amp; Τροφίμων</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Tab Switcher Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('active');
+        }
+
+        // --- 1. General Acid/Base Calculations ---
+        function calculateGeneral() {
+            const titrantType = document.getElementById('gen_titrant_type').value;
+            const cTitrant = parseFloat(document.getElementById('gen_c_titrant').value) || 0;
+            const vTitrant = parseFloat(document.getElementById('gen_v_titrant').value) || 0;
+            const vSample = parseFloat(document.getElementById('gen_v_sample').value) || 0;
+
+            if (vSample <= 0 || cTitrant <= 0 || vTitrant <= 0) return;
+
+            // C1 * V1 = C2 * V2
+            const cSample = (cTitrant * vTitrant) / vSample;
+            
+            let ph = 7;
+            let poh = 7;
+            let sampleTypeStr = "";
+            let phDesc = "";
+
+            if (titrantType === 'base') {
+                // Titrant is Base (NaOH) -> Sample is Acid
+                sampleTypeStr = "Άγνωστο Οξύ";
+                // Assuming strong monoprotic acid for simple titration pH estimate
+                ph = -Math.log10(cSample);
+                if (ph < 0) ph = 0;
+                poh = 14 - ph;
+
+                if (ph < 3) phDesc = "Ισχυρά οπτικό διάλυμα (pH < 3). Υψηλή συγκέντρωση κατιόντων υδρογονίου [H⁺].";
+                else if (ph < 6) phDesc = "Ασθενώς οπτικό διάλυμα (3 ≤ pH < 6).";
+                else phDesc = "Σχεδόν ουδέτερο διάλυμα.";
+            } else {
+                // Titrant is Acid (HCl) -> Sample is Base
+                sampleTypeStr = "Άγνωστη Βάση";
+                poh = -Math.log10(cSample);
+                if (poh < 0) poh = 0;
+                ph = 14 - poh;
+
+                if (ph > 11) phDesc = "Ισχυρά βασικό διάλυμα (pH > 11). Υψηλή συγκέντρωση ανιόντων υδροξειδίου [OH⁻].";
+                else if (ph > 8) phDesc = "Ασθενώς βασικό διάλυμα (8 < pH ≤ 11).";
+                else phDesc = "Σχεδόν ουδέτερο διάλυμα.";
+            }
+
+            document.getElementById('gen_res_molar').innerText = cSample.toFixed(4);
+            document.getElementById('gen_res_type').innerText = sampleTypeStr;
+            document.getElementById('gen_res_ph').innerText = ph.toFixed(2);
+            document.getElementById('gen_res_poh').innerText = poh.toFixed(2);
+            document.getElementById('gen_ph_desc').innerText = phDesc;
+        }
+
+        // --- 2. Oil Acidity Calculations ---
+        function calculateOil() {
+            const cNaoh = parseFloat(document.getElementById('oil_c_naoh').value) || 0;
+            const vNaoh = parseFloat(document.getElementById('oil_v_naoh').value) || 0;
+            const mOil = parseFloat(document.getElementById('oil_mass').value) || 0;
+
+            if (mOil <= 0 || cNaoh <= 0 || vNaoh <= 0) return;
+
+            // Mw oleic acid = 282.47 g/mol
+            // % Acidity = (V_naoh * C_naoh * 282.47) / (m_oil * 10)
+            const acidity = (vNaoh * cNaoh * 282.47) / (mOil * 10);
+
+            document.getElementById('oil_res_acidity').innerText = acidity.toFixed(2) + '%';
+
+            const badge = document.getElementById('oil_res_badge');
+            const descBox = document.getElementById('oil_desc_box');
+
+            // Reset scale UI highlighting
+            ['oil_cat_extra', 'oil_cat_virgin', 'oil_cat_lampante'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('bg-emerald-50', 'bg-amber-50', 'bg-rose-50', 'border-emerald-300', 'border-amber-300', 'border-rose-300');
+            });
+
+            if (acidity <= 0.8) {
+                badge.className = "px-4 py-2 rounded-full font-bold text-sm bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm inline-flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Έξτρα Παρθένο Ελαιόλαδο';
+                descBox.className = "p-4 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800";
+                descBox.innerHTML = '<strong>Αξιολόγηση:</strong> Εξαιρετικής ποιότητας ελαιόλαδο (Οξύτητα ≤ 0.8%). Κατάλληλο για άμεση καταναλωτική χρήση.';
+                document.getElementById('oil_cat_extra').classList.add('bg-emerald-50', 'border-emerald-300');
+            } else if (acidity <= 2.0) {
+                badge.className = "px-4 py-2 rounded-full font-bold text-sm bg-amber-100 text-amber-800 border border-amber-300 shadow-sm inline-flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Παρθένο Ελαιόλαδο';
+                descBox.className = "p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800";
+                descBox.innerHTML = '<strong>Αξιολόγηση:</strong> Αποδεκτή ποιότητα παρθένου ελαιολάδου (0.8% < Οξύτητα ≤ 2.0%).';
+                document.getElementById('oil_cat_virgin').classList.add('bg-amber-50', 'border-amber-300');
+            } else {
+                badge.className = "px-4 py-2 rounded-full font-bold text-sm bg-rose-100 text-rose-800 border border-rose-300 shadow-sm inline-flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Λαμπάντε (Ακατάλληλο)';
+                descBox.className = "p-4 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-800";
+                descBox.innerHTML = '<strong>Αξιολόγηση:</strong> Υψηλή οξύτητα (> 2.0%). Ακατάλληλο για βρώση χωρίς βιομηχανική ραφινάριση (Βιομηχανικό / Λαμπάντε).';
+                document.getElementById('oil_cat_lampante').classList.add('bg-rose-50', 'border-rose-300');
+            }
+        }
+
+        // --- 3. Wine Acidity Calculations ---
+        function calculateWine() {
+            const cNaoh = parseFloat(document.getElementById('wine_c_naoh').value) || 0;
+            const vNaoh = parseFloat(document.getElementById('wine_v_naoh').value) || 0;
+            const vSample = parseFloat(document.getElementById('wine_v_sample').value) || 0;
+
+            if (vSample <= 0 || cNaoh <= 0 || vNaoh <= 0) return;
+
+            // Tartaric Acid Mw = 150.09 g/mol (Diprotic -> 2 moles NaOH per mole acid)
+            // g/L = (vNaoh * cNaoh * 150.09) / (2 * vSample)
+            const gl = (vNaoh * cNaoh * 150.09) / (2 * vSample);
+            const wv = gl / 10; // % w/v
+
+            // Estimated pH approximation for tartaric acid in wine
+            // Concentration in M = gl / 150.09
+            const M = gl / 150.09;
+            const pKa1 = 2.98; // Ka1 of tartaric acid
+            const hydrogenConc = Math.sqrt(Math.pow(10, -pKa1) * M);
+            let ph = -Math.log10(hydrogenConc);
+            if (isNaN(ph) || ph < 1) ph = 3.20;
+            const poh = 14 - ph;
+
+            document.getElementById('wine_res_gl').innerText = gl.toFixed(2);
+            document.getElementById('wine_res_wv').innerText = wv.toFixed(2) + '%';
+            document.getElementById('wine_res_ph').innerText = ph.toFixed(2);
+            document.getElementById('wine_res_poh').innerText = poh.toFixed(2);
+        }
+
+        // --- 4. Milk Acidity Calculations ---
+        function calculateMilk() {
+            const cNaoh = parseFloat(document.getElementById('milk_c_naoh').value) || 0;
+            const vNaoh = parseFloat(document.getElementById('milk_v_naoh').value) || 0;
+            const vSample = parseFloat(document.getElementById('milk_v_sample').value) || 0;
+
+            if (vSample <= 0 || cNaoh <= 0 || vNaoh <= 0) return;
+
+            // Dornic degrees: 1 °D = 0.1g Lactic Acid per L (or 0.01% w/v)
+            // Standard Dornic titrates 10 mL milk with N/9 NaOH (0.111M).
+            // Formula for °D = (V_naoh * C_naoh * 90.08 * 1000) / (vSample * 100 * 0.1) scaled correctly
+            // Standard relation: 1 mL NaOH N/9 in 10 mL milk = 10 °D
+            const dornic = (vNaoh * (cNaoh / 0.1111) * (10 / vSample)) * 10;
+            const lacticPercent = dornic / 100;
+
+            document.getElementById('milk_res_dornic').innerText = dornic.toFixed(1) + ' °D';
+            document.getElementById('milk_res_lactic').innerText = lacticPercent.toFixed(2) + '%';
+
+            const statusBox = document.getElementById('milk_status_box');
+            if (dornic >= 15 && dornic <= 18) {
+                statusBox.className = "p-4 rounded-xl border mb-4 text-center font-bold text-sm bg-emerald-100 text-emerald-800 border-emerald-300";
+                statusBox.innerHTML = '<i class="fa-solid fa-circle-check mr-2"></i>Φρέσκο Νωπό Γάλα (15 - 18 °D)';
+            } else if (dornic < 15) {
+                statusBox.className = "p-4 rounded-xl border mb-4 text-center font-bold text-sm bg-sky-100 text-sky-800 border-sky-300";
+                statusBox.innerHTML = '<i class="fa-solid fa-circle-info mr-2"></i>Πολύ χαμηλή οξύτητα (< 15 °D - πιθανή αραιότητα/μαστίτιδα)';
+            } else if (dornic <= 22) {
+                statusBox.className = "p-4 rounded-xl border mb-4 text-center font-bold text-sm bg-amber-100 text-amber-800 border-amber-300";
+                statusBox.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-2"></i>Ύποπτο / Αρχή Οξίνισης (19 - 22 °D)';
+            } else {
+                statusBox.className = "p-4 rounded-xl border mb-4 text-center font-bold text-sm bg-rose-100 text-rose-800 border-rose-300";
+                statusBox.innerHTML = '<i class="fa-solid fa-circle-xmark mr-2"></i>Ξινισμένο Γάλα - Θρόμβωση (> 22 °D)';
+            }
+        }
+
+        // --- 5. Vinegar Acidity Calculations ---
+        function calculateVinegar() {
+            const cNaoh = parseFloat(document.getElementById('vin_c_naoh').value) || 0;
+            const vNaoh = parseFloat(document.getElementById('vin_v_naoh').value) || 0;
+            const vSample = parseFloat(document.getElementById('vin_v_sample').value) || 0;
+            const df = parseFloat(document.getElementById('vin_df').value) || 1;
+
+            if (vSample <= 0 || cNaoh <= 0 || vNaoh <= 0 || df <= 0) return;
+
+            // Molar concentration of diluted sample = (C_naoh * V_naoh) / V_sample
+            // Real Molar concentration = M_diluted * df
+            const molarity = ((cNaoh * vNaoh) / vSample) * df;
+
+            // % w/v Acetic Acid (Mw = 60.05 g/mol)
+            // % w/v = (Molarity * 60.05) / 10
+            const acidity = (molarity * 60.05) / 10;
+
+            // pH of acetic acid (weak acid, Ka = 1.8e-5)
+            const Ka = 1.8e-5;
+            const hPlus = Math.sqrt(Ka * molarity);
+            let ph = -Math.log10(hPlus);
+            if (isNaN(ph)) ph = 2.4;
+
+            document.getElementById('vin_res_acidity').innerText = acidity.toFixed(2) + '%';
+            document.getElementById('vin_res_molar').innerText = molarity.toFixed(2) + ' M';
+            document.getElementById('vin_res_ph').innerText = ph.toFixed(2);
+
+            const badge = document.getElementById('vin_res_badge');
+            const descBox = document.getElementById('vin_desc_box');
+            const strengthEl = document.getElementById('vin_res_strength');
+
+            if (acidity >= 6.0) {
+                strengthEl.innerText = "Δυνατό";
+                badge.className = "px-3.5 py-1.5 rounded-full font-bold text-xs bg-purple-100 text-purple-800 border border-purple-300 shadow-sm inline-flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Κανονικό Εμπορικό Ξίδι (≥ 6%)';
+                descBox.className = "p-4 bg-purple-50 rounded-xl border border-purple-200 text-xs text-purple-800";
+                descBox.innerHTML = '<strong>Αξιολόγηση:</strong> Το δείγμα πληροί πλήρως τις προδιαγραφές του Κώδικα Τροφίμων (οξύτητα ≥ 6% w/v).';
+            } else if (acidity >= 4.0) {
+                strengthEl.innerText = "Ασθενές";
+                badge.className = "px-3.5 py-1.5 rounded-full font-bold text-xs bg-amber-100 text-amber-800 border border-amber-300 shadow-sm inline-flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Ελαφρύ / Ασθενές Ξίδι (4% - 6%)';
+                descBox.className = "p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800";
+                descBox.innerHTML = '<strong>Αξιολόγηση:</strong> Ασθενές ξίδι. Κατάλληλο για οικιακή χρήση αλλά χαμηλότερο από το ελάχιστο όριο εμπορίου 6%.';
+            } else {
+                strengthEl.innerText = "Πολύ Ασθενές";
+                badge.className = "px-3.5 py-1.5 rounded-full font-bold text-xs bg-rose-100 text-rose-800 border border-rose-300 shadow-sm inline-flex items-center gap-1.5";
+                badge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Πολύ Ασθενές / Αραιωμένο (< 4%)';
+                descBox.className = "p-4 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-800";
+                descBox.innerHTML = '<strong>Αξιολόγηση:</strong> Πολύ χαμηλή οξύτητα. Υποδηλώνει εκτεταμένη αραίωση ή ατελή οξική ζύμωση.';
+            }
+        }
+
+        // Attach Event Listeners for Live Updates
+        const inputs = [
+            'gen_titrant_type', 'gen_c_titrant', 'gen_v_titrant', 'gen_v_sample',
+            'oil_c_naoh', 'oil_v_naoh', 'oil_mass',
+            'wine_c_naoh', 'wine_v_naoh', 'wine_v_sample',
+            'milk_c_naoh', 'milk_v_naoh', 'milk_v_sample',
+            'vin_c_naoh', 'vin_v_naoh', 'vin_v_sample', 'vin_df'
+        ];
+
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', updateAllCalculations);
+                el.addEventListener('change', updateAllCalculations);
+            }
+        });
+
+        function updateAllCalculations() {
+            calculateGeneral();
+            calculateOil();
+            calculateWine();
+            calculateMilk();
+            calculateVinegar();
+        }
+
+        // Initial Trigger on Load
+        window.onload = function() {
+            updateAllCalculations();
+        };
+    </script>
+</body>
+</html>
